@@ -1,0 +1,112 @@
+- _type: Monitor
+  arguments:
+    comparator: LTE
+    failureState: DEVIATING
+    metric:
+      aliasTemplate: Node Memory Pressure OK
+      query: kubernetes_state_node_by_condition{condition="MemoryPressure"}
+      unit: short
+    threshold: 0.0
+    urnTemplate: urn:kubernetes:/${cluster_name}:node/${node}
+  description: |-
+    Node memory pressure refers to a situation where the memory resources on a Kubernetes node are excessively strained.
+    While encountering node memory pressure is uncommon due to Kubernetes' built-in resource management mechanisms,
+    it can still occur under specific circumstances. There are two primary reasons why node memory pressure may arise.
+
+    The first reason is related to misconfigured or insufficient resource requests and limits for containers running on
+    the node. Kubernetes relies on resource requests and limits to allocate and manage resources effectively. If containers
+    are not accurately configured with their memory requirements, they may consume more memory than expected, leading to node memory pressure.
+
+    The second reason involves the presence of memory-intensive applications or processes. Certain workloads or applications
+    may have higher memory demands, resulting in increased memory utilization on the node. If multiple pods or containers
+    with substantial memory requirements are scheduled on the same node without proper resource allocation, it can cause memory pressure.
+
+    To mitigate node memory pressure, it is crucial to review and adjust resource requests and limits for containers,
+    ensuring they align with the actual memory needs of the applications. Monitoring and optimizing memory usage within
+    the applications themselves can also help reduce memory consumption. Additionally, consider horizontal pod autoscaling
+    to dynamically scale the number of pods based on memory utilization.
+
+    Regular monitoring, analysis of memory-related metrics, and proactive allocation of memory resources can help maintain
+    a healthy memory state on Kubernetes nodes. It's essential to understand the specific requirements of your workloads
+    and adjust resource allocation accordingly to prevent memory pressure and ensure optimal performance.
+  identifier: urn:stackpack:<< .Name >>:shared:monitor:<< .Name >>:node-memory-pressure
+  intervalSeconds: 30
+  name: Node Memory Pressure (Custom)
+  remediationHint: |-
+    Node memory pressure occurs when the available memory on a particular node is insufficient to handle the workload or application requirements. This ca
+n lead to performance degradation, application crashes, and overall system instability.
+
+    ## Possible causes
+
+    - Memory leaks
+    - Excessive resource consumption
+    - Inefficient memory management
+    - Insufficient memory capacity
+    - Misconfigured memory settings
+
+    ### Memory leaks
+
+    Software bugs or programming errors causing memory leaks, where memory is allocated but not properly released.
+
+    To address memory leaks, take the following actions:
+
+    1. Identify and fix the memory leak: Use memory profiling tools or debugging techniques to identify the specific code or component causing the memory
+leak. Fix the underlying issue by ensuring proper deallocation of memory resources.
+    2. Implement automatic memory management: Utilize programming languages or frameworks that offer automatic memory management, such as garbage collecti
+on or smart pointers, to reduce the likelihood of memory leaks.
+
+    ### Excessive resource consumption
+
+    Applications or processes consuming an excessive amount of memory.
+
+    To handle excessive resource consumption, consider these steps:
+
+    1. Identify resource-intensive processes: Monitor system resource usage and identify processes that consume an excessive amount of memory. This can be
+ done using tools like `top` or task managers.
+    2. Optimize application/resource usage: Analyze the identified resource-intensive processes and optimize their memory usage. This can involve optimizi
+ng algorithms, reducing unnecessary data caching, or implementing more efficient data structures.
+    3. Consider resource limitations: Set resource limits or quotas for applications or processes to prevent them from monopolizing system memory. This ca
+n be done using tools like `ulimit` (Linux) or resource management frameworks.
+
+    ### Inefficient memory management
+
+    Inefficient memory allocation and deallocation strategies.
+
+    To improve memory management efficiency, follow these steps:
+
+    1. Review memory allocation patterns: Analyze memory allocation patterns within your application or system. Identify any inefficient or excessive memo
+ry allocations that can be reduced or optimized.
+    2. Optimize memory deallocation: Ensure that memory is promptly deallocated when it is no longer needed. Avoid unnecessary or delayed deallocation tha
+t can lead to memory fragmentation and increased memory pressure.
+    3. Use appropriate memory management techniques: Depending on your programming language or framework, utilize appropriate memory management techniques
+, such as object pooling or memory recycling, to reduce memory overhead and improve performance.
+
+    ### Insufficient memory capacity
+
+    Inadequate memory capacity to handle the workload or application demands.
+
+    To address insufficient memory capacity, consider the following steps:
+
+    1. Add more physical memory: Increase the physical memory (RAM) on the node by adding more memory modules or upgrading the existing ones. This provide
+s additional memory capacity to handle increased workload demands.
+    2. Scale vertically or horizontally: If adding more memory to a single node is not feasible, consider scaling vertically by moving to a more powerful
+server with higher memory capacity. Alternatively, distribute the workload across multiple nodes using horizontal scaling techniques.
+
+    ### Misconfigured memory settings
+
+    Improper configuration of memory-related settings in the operating system or application.
+
+    To resolve misconfigured memory settings, take the following actions:
+
+    1. Review operating system settings: Check the operating system's memory-related settings, such as page file (swap) configuration and memory allocatio
+n limits. Adjust these settings based on the specific workload and system requirements.
+    2. Optimize application memory settings: Configure the application's memory-related settings, such as heap size or cache limits, to align with the ava
+ilable system resources and the application's memory requirements. Consult the application's documentation for guidance on optimal settings.
+
+    Remember that the specific remediation steps may vary depending on your system configuration, operating system, programming language, and the underlyi
+ng cause of the node memory pressure. It's important to thoroughly analyze your environment and consult relevant documentation or experts for precise guid
+ance.
+  status: ENABLED
+  tags:
+  - nodes
+  - pressure

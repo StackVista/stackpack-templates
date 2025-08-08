@@ -1,0 +1,15 @@
+- _type: MetricBinding
+  chartType: line
+  enabled: true
+  identifier: urn:stackpack:<< .Name >>:shared:metric-binding:node-memory-bytes-available-scheduling
+  layout:
+    metricPerspective:
+      section: Resources
+      tab: Kubernetes Node
+  name: Memory available for scheduling (Custom)
+  priority: medium
+  queries:
+  - alias: ${cluster_name} - ${node}
+    expression: max_over_time(kubernetes_state_node_memory_allocatable{cluster_name="${tags.cluster-name}", node="${name}"}[${__interval}])
+  scope: (label = "stackpack:kubernetes" and type = "node")
+  unit: bytes(IEC)
