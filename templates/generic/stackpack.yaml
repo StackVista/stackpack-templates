@@ -1,42 +1,36 @@
 # schemaVersion -- Stackpack specification version.
-schemaVersion = "2.0"
+schemaVersion: "2.0"
 # name -- Name of the StackPack. This is what is used to uniquely identify the StackPack.
-name = "<< .Name >>"
+name: "<< .Name >>"
 # displayName -- Name that's displayed on both the StackPack listing page and on the title of the StackPack page.
-displayName = "<< .DisplayName >>"
+displayName: "<< .DisplayName >>"
 # version -- Semantic version of the StackPack. StackPacks with the same major version are considered compatible.
-version = "0.0.1"
+version: "0.0.1"
 # isNew -- This specifies whether the StackPack is new, as in the StackPack version is the first publicly available version. The values can be yes/no/true/false.
-isNew = false
+isNew: false
 # logoUrl -- Specifies the logo used as a badge for the StackPack.
-logoUrl = "logo.png"
+logoUrl: "logo.png"
 # categories -- These are keywords using which the StackPacks can be filtered. Any list of relevant labels can be passed here. It's recommended to keep labels in capitalized letters.
-categories = [ "Test" ]
+categories: [ "Test" ]
 # Markdown resource with general information about the StackPack.
-overviewUrl = "overview.md"
+overviewUrl: "overview.md"
 # configurationUrls -- Contains the Markdown resources relevant for various states of StackPack provisioning.
-configurationUrls {
+configurationUrls:
   INSTALLED: "installed.md"
   NOT_INSTALLED: "notinstalled.md"
   PROVISIONING: "provisioning.md"
   WAITING_FOR_DATA: "waitingfordata.md"
   DEPROVISIONING: "deprovisioning.md"
   ERROR: "error.md"
-}
+
 # faqs -- Frequently asked questions concerning the StackPack or its installation. A list with each element having the format:
 #   {
-#     question = "question"
-#     answer = "answer"
+#     question: "question"
+#     answer: "answer"
 #   }
-faqs = []
-steps = []
-provision = {
-  sharedTemplate = {
+faqs: []
+steps: []
+provision:
+  sharedTemplate:
     # The root template that is used to configure SUSE Observability
-    templatePath = "stackpack.sty"
-  }
-}
-# The common dependency provides the standard monitor functions.
-dependencies {
-  common: "3.4.2",
-}
+    templatePath: "stackpack.sty"
