@@ -38,14 +38,12 @@ This StackPack uses SUSE Observability's provisioning system to deploy resources
 
 ### Main Provisioning File
 
-The `stackpack.conf` contains a directive that specifies the main provisioning file:
+The `stackpack.yaml` contains a directive that specifies the main provisioning file:
 
-```hocon
-provision = {
-  sharedTemplate = {
-    templatePath = "stackpack.sty"
-  }
-}
+```yaml
+provision: 
+  sharedTemplate:
+    templatePath: "stackpack.sty"
 ```
 
 This tells SUSE Observability to look for the main provisioning template at `./provisioning/stackpack.sty`.
