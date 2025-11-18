@@ -6,8 +6,6 @@ name: "<< .Name >>"
 displayName: "<< .DisplayName >>"
 # version -- Semantic version of the StackPack. StackPacks with the same major version are considered compatible.
 version: "0.0.1"
-# isNew -- This specifies whether the StackPack is new, as in the StackPack version is the first publicly available version. The values can be yes/no/true/false.
-isNew: false
 # logoUrl -- Specifies the logo used as a badge for the StackPack.
 logoUrl: "logo.png"
 # categories -- These are keywords using which the StackPacks can be filtered. Any list of relevant labels can be passed here. It's recommended to keep labels in capitalized letters.
