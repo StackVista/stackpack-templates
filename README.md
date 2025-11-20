@@ -44,13 +44,17 @@ The generic template provides a foundational StackPack structure with:
 - **Memory Available for Scheduling**: Chart showing allocatable memory per node
 - Custom metric binding with line chart visualization
 
+**📈 Dashboard**
+- **Pod resources**: A basic dashboard showing how to include dashboards in a stackpack
+- An easy way to include dashboards is to first create it in the UI, then copy the yaml into the `dashboard` field of the Dashboard (it also needs a name, identifier and optional description). 
+
 **📝 Documentation**
 - Complete project README with customization guide
 - Overview and configuration documentation templates
 - Logo placeholder for branding
 
 **⚙️ Configuration**
-- Ready-to-use `stackpack.conf` with HOCON format
+- Ready-to-use `stackpack.yaml`
 - Provisioning templates using `.sty` files
 - Template variables with `<< .Name >>` placeholders
 
@@ -62,16 +66,17 @@ stackpack-templates/
 ├── templates/                          # Template directory
 │   └── generic/                        # Generic StackPack template
 │       ├── README.md                   # Template documentation
-│       ├── stackpack.conf              # StackPack configuration
+│       ├── stackpack.yaml              # StackPack configuration
 │       ├── provisioning/               # Provisioning definitions
-│       │   ├── stackpack.sty          # Main provisioning template
-│       │   ├── monitor.sty            # Monitor definitions  
-│       │   └── metricbindings.sty     # Metric binding definitions
+│       │   ├── stackpack.sty           # Main provisioning template
+│       │   ├── monitor.sty             # Monitor definitions  
+│       │   ├── dashboard.sty           # Dashboard definitions
+│       │   └── metricbindings.sty      # Metric binding definitions
 │       └── resources/                  # Documentation and assets
-│           ├── overview.md            # StackPack overview
-│           ├── default.md             # Configuration instructions
-│           ├── *.md                   # Other documentation files
-│           └── logo.png               # StackPack logo
+│           ├── overview.md             # StackPack overview
+│           ├── default.md              # Configuration instructions
+│           ├── *.md                    # Other documentation files
+│           └── logo.png                # StackPack logo
 └── sts-scaffold.md                     # STS scaffold command documentation
 ```
 
@@ -84,30 +89,41 @@ All templates support variable substitution during scaffolding:
 
 
 ## Development Workflow
+Use the `--help` option on the CLI commands to discover all available options.
 
-### 1. Scaffold Your StackPack
+### 1. Scaffold your Stackpack
 ```bash
 sts stackpack scaffold --name my-awesome-stackpack -display-name "My Awesome StackPack"
 cd my-awesome-stackpack
 ```
 
-### 2. Customize Your StackPack
-- Edit `stackpack.conf` with your integration details
+### 2. Customize your Stackpack
+- Edit `stackpack.yaml` with your integration details
 - Modify monitors in `provisioning/monitor.sty`
 - Update metric bindings in `provisioning/metricbindings.sty`
 - Replace documentation in `resources/`
 
-### 3. Validate and Package
+### 3. Test your Stackpack
+Test the stackpack against on SUSE Observability:
+
 ```bash
-# Validate and Package your StackPack
+sts stackpack test
+```
+
+## Releasing 
+
+### Package your Stackpack
+Update the version in the stackpack.yaml file to the desired version. Then run:
+
+```bash
+sts stackpack package
 ...
 ```
 
-### 4. Upload to SUSE Observability
+Now you can share the generated `.sts` file of your stackpack and make it available in 
+SUSE Observability by uploading it:
+
 ```bash
 # Upload to SUSE Observability
 sts stackpack upload my-awesome-stackpack-1.0.0.sts
 ```
-
-### 4. Install and Test
-Install your StackPack on a SUSE Observability instance either in Stackpack UI or using the CLI:
