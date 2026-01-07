@@ -21,14 +21,7 @@ configurationUrls:
   DEPROVISIONING: "deprovisioning.md"
   ERROR: "error.md"
 
-# faqs -- Frequently asked questions concerning the StackPack or its installation. A list with each element having the format:
-#   {
-#     question: "question"
-#     answer: "answer"
-#   }
-faqs: []
 steps: []
 provision:
-  sharedTemplate:
-    # The root template that is used to configure SUSE Observability
-    templatePath: "stackpack.sty"
+  # The root template that is used to configure SUSE Observability
+  templatePath: "stackpack.sty"
