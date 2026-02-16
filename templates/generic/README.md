@@ -14,7 +14,7 @@ This StackPack template comes up with examples for:
 ```
 << .Name >>/
 ├── README.md
-├── provisioning
+├── settings
 │   ├── metricbindings.sty
 │   ├── monitor.sty
 │   └── stackpack.sty
@@ -27,7 +27,7 @@ This StackPack template comes up with examples for:
 │   ├── overview.md
 │   ├── provisioning.md
 │   └── waitingfordata.md
-└── stackpack.conf
+└── stackpack.yaml
 
 ```
 
@@ -36,41 +36,19 @@ This StackPack template comes up with examples for:
 
 This StackPack uses SUSE Observability's provisioning system to deploy resources. The key components are:
 
-### Main Provisioning File
+### Settings folder
 
-The `stackpack.yaml` contains a directive that specifies the main provisioning file:
-
-```yaml
-provision: 
-  sharedTemplate:
-    templatePath: "stackpack.sty"
-```
-
-This tells SUSE Observability to look for the main provisioning template at `./provisioning/stackpack.sty`.
-
-### How Resource Inclusion Works
-
-The main provisioning file (`provisioning/stackpack.sty`) acts as an entry point that includes other resource definition files:
-
-```yaml
-nodes:
-{{ include "./monitors.sty" "yaml" }}
-{{ include "./metricbindings.sty" "yaml" }}
-```
-
-This means:
-- All resource definitions are loaded under the `nodes:` section
-- The `include` directive loads other `.sty` files and renders them as YAML
-- You can add your own `.sty` files and include them in `stackpack.sty`
+The `settings/` folder contains all settings that are automatically imported.
 
 ### Adding Your Own Resources
 
 To add additional resources to your StackPack:
 
-1. **Create a new .sty file** in the `provisioning/` directory (e.g., `components.sty`, `checks.sty`, `templates.sty`)
+1. **Create a new .sty file** in the `settings/` directory (e.g., `components.sty`, `checks.sty`, `templates.sty`)
 
 2. **Define your resources** using YAML format in the new file:
 ```yaml
+nodes:
 - _type: Component
   name: My Custom Component
   identifier: urn:stackpack:<< .Name >>:component:my-component
@@ -82,15 +60,6 @@ To add additional resources to your StackPack:
   # ... other check properties
 ```
 
-3. **Include the new file** in `provisioning/stackpack.sty`:
-```yaml
-nodes:
-{{ include "./monitors.sty" "yaml" }}
-{{ include "./metricbindings.sty" "yaml" }}
-{{ include "./components.sty" "yaml" }}
-{{ include "./checks.sty" "yaml" }}
-```
-
 ### Supported Resource Types
 
 You can include various SUSE Observability resource types:
@@ -98,24 +67,37 @@ You can include various SUSE Observability resource types:
 - **MetricBindings**: Custom charts and visualizations
 - **And more**: more resources are coming soon!
 
+### Extract large values 
+
+Large values can be extracted to their own file instead of being embedded in a settings yaml.  These values live as files under the `includes/` folder.
+They can be included by using the `!include` yaml tag:
+
+```yaml
+nodes:
+- _type: Monitor
+  remediationHint: !include "remediation-hints/node-memory-pressure.md.hbs"
+  # ... other monitor properties
+```
+
 ## Customization Guide
 
 ### 1. Update StackPack Configuration
 
-Edit `stackpack.conf` to customize:
+Edit `stackpack.yaml` to customize:
 
-```hocon
-name = "<< .Name >>"                    # Update with your StackPack name
-displayName = "<< .Name >>"             # Update display name
-categories = [ "Test" ]                 # Update categories
-version = "0.0.1"                       # Set appropriate version
+```yaml
+name: "<< .Name >>"                    # Update with your StackPack name
+displayName: "<< .Name >>"             # Update display name
+categories: [ "Test" ]                 # Update categories
+version: "0.0.1"                       # Set appropriate version
 ```
 
 ### 2. Customize Monitors
 
-Edit `provisioning/monitor.sty` or create additional monitor files:
+Edit `settings/monitor.sty` or create additional monitor files:
 
 ```yaml
+nodes:
 - _type: Monitor
   name: My Custom Monitor
   identifier: urn:stackpack:<< .Name >>:shared:monitor:my-custom-monitor
@@ -124,9 +106,10 @@ Edit `provisioning/monitor.sty` or create additional monitor files:
 
 ### 3. Customize Metric Bindings
 
-Edit `provisioning/metricbindings.sty` or create additional metric binding files:
+Edit `settings/metricbindings.sty` or create additional metric binding files:
 
 ```yaml
+nodes:
 - _type: MetricBinding
   name: My Custom Chart
   identifier: urn:stackpack:<< .Name >>:shared:metric-binding:my-chart
@@ -135,7 +118,7 @@ Edit `provisioning/metricbindings.sty` or create additional metric binding files
 
 ### 4. Add Additional Resources
 
-Create new `.sty` files for other resources and include them in `stackpack.sty`.
+Create new `.sty` files for other resources in the `settings/` folder.
 
 ### 5. Update Documentation
 
