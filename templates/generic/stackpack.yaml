@@ -7,21 +7,18 @@ displayName: "<< .DisplayName >>"
 # version -- Semantic version of the StackPack. StackPacks with the same major version are considered compatible.
 version: "0.0.1"
 # logoUrl -- Specifies the logo used as a badge for the StackPack.
-logoUrl: "logo.png"
+logoUrl: !resource "logo.png"
 # categories -- These are keywords using which the StackPacks can be filtered. Any list of relevant labels can be passed here. It's recommended to keep labels in capitalized letters.
 categories: [ "Test" ]
 # Markdown resource with general information about the StackPack.
-overviewUrl: "overview.md"
+overviewUrl: !resource "overview.md"
 # configurationUrls -- Contains the Markdown resources relevant for various states of StackPack provisioning.
 configurationUrls:
-  INSTALLED: "installed.md"
-  NOT_INSTALLED: "notinstalled.md"
-  PROVISIONING: "provisioning.md"
-  WAITING_FOR_DATA: "waitingfordata.md"
-  DEPROVISIONING: "deprovisioning.md"
-  ERROR: "error.md"
-
-steps: []
+  INSTALLED: !resource "installed.md"
+  NOT_INSTALLED: !resource "notinstalled.md"
+  PROVISIONING: !resource "provisioning.md"
+  WAITING_FOR_DATA: !resource "waitingfordata.md"
+  DEPROVISIONING: !resource "deprovisioning.md"
+  ERROR: !resource "error.md"
 provision:
-  # The root template that is used to configure SUSE Observability
-  templatePath: "stackpack.sty"
+  companionStackPacks: []

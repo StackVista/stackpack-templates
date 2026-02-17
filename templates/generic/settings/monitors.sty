@@ -1,3 +1,4 @@
+nodes:
 - _type: Monitor
   function: urn:stackpack:common:monitor-function:threshold
   arguments:
@@ -14,7 +15,7 @@
   identifier: urn:stackpack:<< .Name >>:shared:monitor:<< .Name >>:node-memory-pressure
   intervalSeconds: 30
   name: Node Memory Pressure (Custom)
-  remediationHint: "{{ include "./remediation-hints/node-memory-pressure.md.hbs" "identity" }}"
+  remediationHint: !include "remediation-hints/node-memory-pressure.md.hbs"
   status: ENABLED
   tags:
   - nodes
