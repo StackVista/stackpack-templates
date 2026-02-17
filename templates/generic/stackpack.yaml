@@ -20,6 +20,5 @@ configurationUrls:
   WAITING_FOR_DATA: !resource "waitingfordata.md"
   DEPROVISIONING: !resource "deprovisioning.md"
   ERROR: !resource "error.md"
-steps: []
 provision:
   companionStackPacks: []

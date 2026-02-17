@@ -44,7 +44,7 @@ The `settings/` folder contains all settings that are automatically imported.
 
 To add additional resources to your StackPack:
 
-1. **Create a new .sty file** in the `settings/` directory (e.g., `components.sty`, `checks.sty`, `templates.sty`)
+1. **Create a new .sty file** in the `settings/` directory (e.g., `components.sty`, `monitors.sty`, `metricbindings.sty`)
 
 2. **Define your resources** using YAML format in the new file:
 ```yaml
