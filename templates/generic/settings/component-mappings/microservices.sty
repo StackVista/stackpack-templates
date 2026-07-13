@@ -1,0 +1,65 @@
+# Component mapping: every demo service instance (except kafka) -> microservice.
+nodes:
+  - _type: "OtelComponentMapping"
+    name: "Webshop microservice instance"
+    description: "Turns webshop service-instance telemetry into a microservice component"
+    identifier: "urn:stackpack:<< .Name >>:otel-component-mapping:microservice"
+    input:
+      signal:
+        - "TRACES"
+        - "METRICS"
+      resource:
+        action: "'CREATE'"
+        condition: >-
+          'service.name' in resource.attributes &&
+          'service.namespace' in resource.attributes &&
+          'service.instance.id' in resource.attributes &&
+          resource.attributes['service.namespace'].contains('telemetry-demo') &&
+          resource.attributes['service.name'] != 'kafka'
+    vars:
+      - name: "namespace"
+        value: >-
+          resource.attributes['service.namespace'] != '' ?
+          resource.attributes['service.namespace'] :
+          'default'
+      - name: "service"
+        value: "resource.attributes['service.name']"
+      - name: "instanceId"
+        value: "resource.attributes['service.instance.id']"
+      - name: "instanceName"
+        value: "resource.attributes['service.name'] + ' - ' + resource.attributes['service.instance.id']"
+      - name: "clusterName"
+        value: "resource.attributes['k8s.cluster.name']"
+    output:
+      identifier: >-
+        'urn:stackpack:<< .Name >>:microservice/' + vars.namespace + '/' + vars.service + '/' + vars.instanceId
+      name: "vars.instanceName"
+      typeName: "'<< .Name >> microservice'"
+      required:
+        additionalIdentifiers:
+          - "'urn:opentelemetry:namespace/' + vars.namespace + ':service/' + vars.service + ':serviceInstance/' + vars.instanceId"
+        tags:
+          - source: "'<< .Name >>'"
+            target: "stackpack"
+          - source: "vars.service"
+            target: "service.name"
+          - source: "vars.namespace"
+            target: "service.namespace"
+          - source: "vars.instanceId"
+            target: "service.instance.id"
+          - source: "vars.clusterName"
+            target: "cluster-name"
+          - source: "resource.attributes"
+            pattern: "telemetry.sdk\\.(.*)"
+            target: "telemetry.sdk.${1}"
+      optional:
+        tags:
+          - source: "resource.attributes['service.version']"
+            target: "service.version"
+    expireAfter: 900000
+    # Deliberately BELOW the generic OTel service-instance mapping (specificity 210)
+    # so the merged component keeps the primary typeName "otel service instance". That
+    # generic type is what our presentation binding + span-metric inheritance rely on;
+    # our own type survives as the "source-type:<< .Name >> microservice" label.
+    rank:
+      specificity: 150

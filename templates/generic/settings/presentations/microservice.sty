@@ -1,0 +1,125 @@
+# Base presentation for all microservice instances: shared list, columns, filters,
+# topology placement. Binding = generic OTel service-instance query + our narrowing
+# label, so the generic span metrics are inherited by composition (keep it a subset).
+nodes:
+  - _type: ComponentPresentation
+    name: "Microservices base"
+    description: "Shared list view, columns and filters for all << .DisplayName >> microservices"
+    identifier: "urn:stackpack:<< .Name >>:component-presentation:microservice-base"
+    binding:
+      _type: ComponentPresentationQueryBinding
+      query: (label = "stackpack:open-telemetry" and type = "otel service instance" and label = "source-type:<< .Name >> microservice")
+    # 200-299 is the documented "Application / service" band, so our microservice
+    # presentation ranks above the generic OTel base and its icon + topology
+    # layer/domain win on the node. Metric/column/filter inheritance is driven by the
+    # binding being a subset -- NOT by rank -- so ranking above them keeps inheritance.
+    rank:
+      specificity: 210
+    presentation:
+      icon: !icon microservice.svg
+      topology:
+        layer:
+          name: "Services"
+          order: 100
+        domain:
+          name: "<< .DisplayName >>"
+          order: 100
+      overview:
+        name:
+          singular: "microservice"
+          plural: "microservices"
+          title: "Microservices"
+        mainMenu:
+          group: "<< .Name >>"
+          order: 100
+        columns:
+          - columnId: "health"
+            title: "Health"
+            projection:
+              _type: "HealthProjection"
+              value: "healthState"
+          - columnId: "name"
+            title: "Instance"
+            projection:
+              _type: "ComponentLinkProjection"
+              name: "name"
+              identifier: "identifiers[0]"
+          - columnId: "service"
+            title: "Service"
+            projection:
+              _type: "TextProjection"
+              value: "tags.singleValue('service.name')"
+          - columnId: "language"
+            title: "Language"
+            projection:
+              _type: "TextProjection"
+              value: "tags.singleValue('telemetry.sdk.language')"
+          - columnId: "namespace"
+            title: "Namespace"
+            projection:
+              _type: "TextProjection"
+              value: "tags.singleValue('service.namespace')"
+          - columnId: "cluster"
+            title: "Cluster"
+            projection:
+              _type: "TextProjection"
+              value: "tags.singleValue('cluster-name')"
+          - columnId: "started"
+            title: "Started"
+            projection:
+              _type: "TextProjection"
+              value: "tags.singleValue('k8s.pod.start_time')"
+        sort:
+          - columnId: health
+          - columnId: name
+      filters:
+        - filterId: "namespace"
+          displayName:
+            singular: "Namespace"
+            plural: "Namespaces"
+          filter:
+            _type: "TagFilter"
+            tagKey: "service.namespace"
+          moreTab: "<< .DisplayName >>"
+        - filterId: "cluster"
+          displayName:
+            singular: "Cluster"
+            plural: "Clusters"
+          filter:
+            _type: "TagFilter"
+            tagKey: "cluster-name"
+          moreTab: "<< .DisplayName >>"
+      highlight:
+        title: "Microservice instance"
+        fields:
+          - fieldId: "service"
+            title: "Service"
+            order: 95.0
+            projection:
+              _type: TextProjection
+              value: "tags.singleValue('service.name')"
+          - fieldId: "namespace"
+            title: "Namespace"
+            order: 90.0
+            projection:
+              _type: TextProjection
+              value: "tags.singleValue('service.namespace')"
+          - fieldId: "instance"
+            title: "Instance ID"
+            order: 80.0
+            projection:
+              _type: TextProjection
+              value: "tags.singleValue('service.instance.id')"
+          - fieldId: "version"
+            title: "Version"
+            order: 70.0
+            projection:
+              _type: TextProjection
+              value: "tags.singleValue('service.version')"
+          - fieldId: "labels"
+            title: "Labels"
+            order: 10.0
+            projection:
+              _type: TagProjection
+        events:
+          showEvents: true

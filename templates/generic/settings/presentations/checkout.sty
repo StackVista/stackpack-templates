@@ -1,0 +1,53 @@
+# Presentation for checkout instances: inherits the shared overview + generic span
+# metrics; adds a "Depends on" panel and a highlight link to this instance's traces.
+nodes:
+  - _type: ComponentPresentation
+    name: "Checkout presentation"
+    description: "Rich presentation for checkout microservice instances"
+    identifier: "urn:stackpack:<< .Name >>:component-presentation:checkout"
+    binding:
+      _type: ComponentPresentationQueryBinding
+      # Matches both demo naming schemes: the newer "checkout" and the older "checkoutservice".
+      query: (label = "stackpack:open-telemetry" and type = "otel service instance" and label IN ("service.name:checkout", "service.name:checkoutservice"))
+    # Above the microservice base (210) so checkout-specific overrides win; the icon
+    # and topology layer/domain are inherited from the base by composition.
+    rank:
+      specificity: 220
+    presentation:
+      filters:
+        - filterId: "namespace"
+        - filterId: "cluster"
+      highlight:
+        title: "Checkout instance"
+        # Most fields (Namespace / Instance ID / Version) are inherited from
+        # microservice.sty; here we add the Go runtime version to show a
+        # checkout-specific field pulled straight from an OTel resource tag.
+        fields:
+          - fieldId: "runtime"
+            title: "Runtime version"
+            order: 60.0
+            projection:
+              _type: TextProjection
+              value: "tags.singleValue('process.runtime.version')"
+        provisioning:
+          externalComponentSelector: "external.mapping.identifier == 'urn:stackpack:<< .Name >>:otel-component-mapping:microservice'"
+          showConfiguration: false
+          showStatus: false
+        relatedResources:
+          - resourceId: "dependencies"
+            title: "Depends on"
+            order: 1.0
+            topologyQuery: '(withNeighborsOf(direction = "down", components = (identifier = "${identifiers[0]}"), levels = "1"))'
+            presentationIdentifier: "urn:stackpack:<< .Name >>:component-presentation:microservice-base"
+        links:
+          - linkId: "checkout-traces"
+            title: "Traces for ${tags.singleValue('service.name')}"
+            target: "/#/traces?serviceName=${tags.singleValue('service.name')}&serviceInstanceId=${tags.singleValue('service.instance.id')}"
+            tooltip: "Open the traces explorer for this checkout instance"
+            filter: "'service.instance.id' in tags"
+            openInNewTab: true
+            order: 100
+        events:
+          showEvents: true
+          relatedResourcesQuery: |
+            identifier = "${identifiers[0]}"

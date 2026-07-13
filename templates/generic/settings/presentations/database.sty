@@ -1,0 +1,144 @@
+# Presentation for the Kafka database (service-level): own list/menu/icon, a
+# "Used by" panel listing the consumer instances, and an incoming-rate metric.
+nodes:
+  - _type: ComponentPresentation
+    name: "Database presentation"
+    description: "How the << .DisplayName >> database component is shown in the UI"
+    identifier: "urn:stackpack:<< .Name >>:component-presentation:database"
+    binding:
+      _type: ComponentPresentationQueryBinding
+      query: (label = "stackpack:open-telemetry" and type = "otel service" and label = "source-type:<< .Name >> database")
+    # 200-299 is the documented "Application / service" band, so our database
+    # presentation ranks above the generic OTel base and its icon + topology
+    # layer/domain win on the node. Inheritance is by binding subset, not rank.
+    rank:
+      specificity: 210
+    presentation:
+      icon: !icon database.svg
+      filters:
+        - filterId: "namespace"
+          displayName:
+            singular: "Namespace"
+            plural: "Namespaces"
+          filter:
+            _type: "TagFilter"
+            tagKey: "service.namespace"
+          moreTab: "<< .DisplayName >>"
+        - filterId: "cluster"
+          displayName:
+            singular: "Cluster"
+            plural: "Clusters"
+          filter:
+            _type: "TagFilter"
+            tagKey: "cluster-name"
+          moreTab: "<< .DisplayName >>"
+      topology:
+        layer:
+          name: "Data stores"
+          order: 90
+        domain:
+          name: "<< .DisplayName >>"
+          order: 100
+      overview:
+        name:
+          singular: "database"
+          plural: "databases"
+          title: "Databases"
+        mainMenu:
+          group: "<< .Name >>"
+          order: 80
+        columns:
+          - columnId: health
+            title: "Health"
+            projection:
+              _type: "HealthProjection"
+              value: "healthState"
+          - columnId: name
+            title: "Database"
+            projection:
+              _type: "ComponentLinkProjection"
+              name: "name"
+              identifier: "identifiers[0]"
+          - columnId: namespace
+            title: "Namespace"
+            projection:
+              _type: "TextProjection"
+              value: "tags.singleValue('service.namespace')"
+          - columnId: cluster
+            title: "Cluster"
+            projection:
+              _type: "TextProjection"
+              value: "tags.singleValue('cluster-name')"
+        sort:
+          - columnId: health
+          - columnId: name
+      highlight:
+        title: "Database"
+        fields:
+          - fieldId: "namespace"
+            title: "Namespace"
+            order: 90.0
+            projection:
+              _type: TextProjection
+              value: "tags.singleValue('service.namespace')"
+          - fieldId: "labels"
+            title: "Labels"
+            order: 10.0
+            projection:
+              _type: TagProjection
+        provisioning:
+          externalComponentSelector: "external.mapping.identifier == 'urn:stackpack:<< .Name >>:otel-component-mapping:database'"
+          showConfiguration: false
+          showStatus: false
+        relatedResources:
+          - resourceId: "users"
+            title: "Used by"
+            order: 1.0
+            topologyQuery: '(withNeighborsOf(direction = "up", components = (identifier = "${identifiers[0]}"), levels = "1")) and label = "source-type:<< .Name >> microservice"'
+            presentationIdentifier: "urn:stackpack:<< .Name >>:component-presentation:microservice-base"
+        events:
+          showEvents: true
+          relatedResourcesQuery: |
+            identifier = "${identifiers[0]}"
+        metrics:
+          - sectionId: throughput
+            title: Throughput
+            description: "Traffic into this database"
+            order: 100
+            metrics:
+              - metricId: database-incoming-rate
+                order: 100
+      summary:
+        metrics:
+          - summaryMetricId: database_incoming_rate_summary
+            name: Incoming rate
+            order: 100
+            decimalPlaces: 2
+            unit: reqps
+            query: |-
+              sum by (server_service_namespace, server) (rate(traces_service_graph_request_total{
+                server_service_namespace="${tags.singleValue('service.namespace')}", server="${tags.singleValue('service.name')}"
+              }[${__rate_interval}]))
+            metricId: database-incoming-rate
+      metricPerspective:
+        tabs:
+          - tabId: throughput
+            title: Throughput
+            order: 10
+            sections:
+              - sectionId: requests
+                title: Requests
+                order: 10
+                metrics:
+                  - metricId: database-incoming-rate
+    metrics:
+      - metricId: database-incoming-rate
+        name: Incoming rate
+        description: Requests per second into the database, by caller
+        metricQueries:
+          - expression: sum by (client_service_namespace, client) (rate(traces_service_graph_request_total{server_service_namespace="${tags.singleValue('service.namespace')}", server="${tags.singleValue('service.name')}"}[${__rate_interval}]))
+            alias: "from ${client}"
+            componentIdentifierTemplate: "urn:opentelemetry:namespace/${client_service_namespace}:service/${client}"
+        chart:
+          _type: TimeSeriesChart
+          unit: reqps

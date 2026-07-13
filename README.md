@@ -12,6 +12,11 @@ StackPacks are extensions for SUSE Observability that provide automated integrat
 ### Prerequisites
 - SUSE Observability CLI (`sts`) installed and configured
 - Access to a SUSE Observability instance
+- For the webshop example: the **OpenTelemetry StackPack** installed and receiving
+  data. The generic template is a *specialization layer* on top of it — it extends
+  the generic `otel service` / `otel service instance` components (merging with
+  them and inheriting their span metrics) rather than observing the app from
+  scratch.
 
 ### Create a New StackPack
 
@@ -34,15 +39,24 @@ This will create a new directory with your StackPack project structure, ready fo
 
 ### Generic Template (`templates/generic/`)
 
-The generic template provides a foundational StackPack structure with:
+The generic template is a **worked tutorial** covering one runnable example of
+every concept needed to build a custom integration. Most of it is a single
+connected **webshop** example (built as a specialization layer on top of the
+OpenTelemetry StackPack); a standalone **Dashboard** example ships alongside it
+and can be kept or deleted independently.
+
+**🧩 Component Presentation (the main tutorial)**
+- A domain-specific example modeled on the [OpenTelemetry Demo](https://github.com/open-telemetry/opentelemetry-demo) webshop, built as a **specialization layer on top of the OpenTelemetry StackPack**: it takes the generic `otel service` / `otel service instance` components produced from OTel telemetry and **extends** them with a tailored view. Two component types — **microservices** (every demo service **instance**, with richer presentations for cart and checkout) and a **database** (kafka, at the **service** level) — connected by real dependencies (checkout instance → cart instance from the service graph; consumer instance → kafka service from consumer spans). Microservices **merge with** the generic service instances and **inherit** their span metrics; only domain-specific metrics are added. The database lists its connecting instances via related resources.
+- Covers the full StackPacks 2.0 presentation model: component mappings, relation mappings, `ComponentPresentation` (columns, highlight, summary/perspective metrics, projections, filters), `MainMenuGroup`, and icons
+- Every `.sty` file is commented and cross-linked to the reference documentation
 
 **🔍 Monitoring**
-- **Node Memory Pressure Monitor**: Detects memory pressure conditions on Kubernetes nodes
-- Pre-configured with threshold-based alerting and remediation guidance
+- **Add-to-cart latency monitor**: a threshold `Monitor` on the cart's own domain metric — goes Deviating when the 95th-percentile add-to-cart latency exceeds 50&nbsp;ms, bound to the cart service instance
+- Threshold-based alerting with a `!include` remediation hint (domain metric → monitor → health)
 
 **📊 Metrics**  
-- **Memory Available for Scheduling**: Chart showing allocatable memory per node
-- Custom metric binding with line chart visualization
+- Metrics are defined inside a `ComponentPresentation` (there is no separate `MetricBinding` resource in StackPacks 2.0)
+- The webshop presentations show metrics in every UI location: summary, highlight sections, and the metric perspective
 
 **📈 Dashboard**
 - **Pod resources**: A basic dashboard showing how to include dashboards in a stackpack
@@ -55,7 +69,8 @@ The generic template provides a foundational StackPack structure with:
 
 **⚙️ Configuration**
 - Ready-to-use `stackpack.yaml`
-- Provisioning templates using `.sty` files
+- Provisioning templates in `settings/` using `.sty` files
+- Reusable template fragments in `includes/`
 - Template variables with `<< .Name >>` placeholders
 
 ## Repository Structure
@@ -63,21 +78,40 @@ The generic template provides a foundational StackPack structure with:
 ```
 stackpack-templates/
 ├── README.md                           # This file
-├── templates/                          # Template directory
-│   └── generic/                        # Generic StackPack template
-│       ├── README.md                   # Template documentation
-│       ├── stackpack.yaml              # StackPack configuration
-│       ├── provisioning/               # Provisioning definitions
-│       │   ├── stackpack.sty           # Main provisioning template
-│       │   ├── monitor.sty             # Monitor definitions  
-│       │   ├── dashboard.sty           # Dashboard definitions
-│       │   └── metricbindings.sty      # Metric binding definitions
-│       └── resources/                  # Documentation and assets
-│           ├── overview.md             # StackPack overview
-│           ├── default.md              # Configuration instructions
-│           ├── *.md                    # Other documentation files
-│           └── logo.png                # StackPack logo
-└── sts-scaffold.md                     # STS scaffold command documentation
+└── templates/                          # Template directory
+    └── generic/                        # Generic StackPack template
+        ├── README.md                   # Template documentation
+        ├── stackpack.yaml              # StackPack configuration
+        ├── icons/                      # SVG icons referenced via !icon
+        │   ├── microservice.svg
+        │   └── database.svg
+        ├── settings/                   # Provisioning definitions (imported on install)
+        │   ├── main-menu.sty           # MainMenuGroup (left-hand navigation)
+        │   ├── component-mappings/     # OtelComponentMapping (telemetry -> components)
+        │   │   ├── microservices.sty   # demo service instances (except kafka) -> microservice
+        │   │   └── database.sty        # kafka service -> database
+        │   ├── relation-mappings/      # OtelRelationMapping (edges between components)
+        │   │   ├── checkout-to-cart.sty      # service-graph metric edge
+        │   │   └── consumer-to-database.sty  # consumer-span messaging edge
+        │   ├── presentations/          # ComponentPresentation (how components look)
+        │   │   ├── microservice.sty    # Base for all microservice instances (composed by rank)
+        │   │   ├── cart.sty            # Rich, cart-specific (the full tour)
+        │   │   ├── checkout.sty        # Rich, checkout-specific
+        │   │   └── database.sty        # Second-type presentation
+        │   ├── monitors.sty            # Monitor on the cart's domain metric
+        │   └── dashboard.sty           # Dashboard (standalone)
+        ├── includes/                   # Reusable template fragments
+        │   └── remediation-hints/      # Monitor remediation hints
+        │       └── cart-add-item-latency.md.hbs
+        └── resources/                  # Documentation and assets
+            ├── overview.md             # StackPack overview
+            ├── provisioning.md         # Shown while provisioning
+            ├── deprovisioning.md       # Shown while deprovisioning
+            ├── installed.md            # Shown when installed
+            ├── notinstalled.md         # Shown when not installed
+            ├── waitingfordata.md       # Shown while waiting for data
+            ├── error.md                # Shown on error
+            └── logo.png                # StackPack logo
 ```
 
 ## Template Features
@@ -99,8 +133,9 @@ cd my-awesome-stackpack
 
 ### 2. Customize your Stackpack
 - Edit `stackpack.yaml` with your integration details
-- Modify monitors in `provisioning/monitor.sty`
-- Update metric bindings in `provisioning/metricbindings.sty`
+- Map your telemetry to components in `settings/component-mappings/`
+- Shape the UI (columns, highlight, metrics) in `settings/presentations/`
+- Modify monitors in `settings/monitors.sty`
 - Replace documentation in `resources/`
 
 ### 3. Test your Stackpack

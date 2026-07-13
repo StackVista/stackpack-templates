@@ -1,0 +1,55 @@
+# Relation mapping: checkout instance -> cart instance, from the service-graph metric.
+nodes:
+  - _type: "OtelRelationMapping"
+    name: "Checkout calls Cart"
+    description: "Connects the checkout service to the cart service it calls"
+    identifier: "urn:stackpack:<< .Name >>:otel-relation-mapping:checkout-to-cart"
+    input:
+      signal:
+        - "METRICS"
+      resource:
+        scope:
+          condition: "scope.name == 'traces_service_graph'"
+          metric:
+            condition: "metric.name == 'traces_service_graph_request_total'"
+            datapoint:
+              action: "'CREATE'"
+              # Matches both demo naming schemes: checkout(service) -> cart(service).
+              condition: >-
+                'client' in datapoint.attributes &&
+                'server' in datapoint.attributes &&
+                datapoint.attributes['client'] in ['checkout', 'checkoutservice'] &&
+                datapoint.attributes['server'] in ['cart', 'cartservice']
+    vars:
+      - name: "clientService"
+        value: "datapoint.attributes['client']"
+      - name: "serverService"
+        value: "datapoint.attributes['server']"
+      - name: "clientNamespace"
+        value: >-
+          datapoint.attributes['client_service.namespace'] != '' ?
+          datapoint.attributes['client_service.namespace'] :
+          'default'
+      - name: "serverNamespace"
+        value: >-
+          datapoint.attributes['server_service.namespace'] != '' ?
+          datapoint.attributes['server_service.namespace'] :
+          'default'
+      - name: "clientInstanceId"
+        value: >-
+          'client_service.instance.id' in datapoint.attributes ?
+          datapoint.attributes['client_service.instance.id'] :
+          datapoint.attributes['client']
+      - name: "serverInstanceId"
+        value: >-
+          'server_service.instance.id' in datapoint.attributes ?
+          datapoint.attributes['server_service.instance.id'] :
+          datapoint.attributes['server']
+    output:
+      sourceId: >-
+        'urn:stackpack:<< .Name >>:microservice/' + vars.clientNamespace + '/' + vars.clientService + '/' + vars.clientInstanceId
+      targetId: >-
+        'urn:stackpack:<< .Name >>:microservice/' + vars.serverNamespace + '/' + vars.serverService + '/' + vars.serverInstanceId
+      typeName: "'calls'"
+      dependencyType: "'CONNECTION'"
+    expireAfter: 900000

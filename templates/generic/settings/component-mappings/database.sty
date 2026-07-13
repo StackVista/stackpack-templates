@@ -1,0 +1,54 @@
+# Component mapping: the Kafka broker -> a service-level database component.
+nodes:
+  - _type: "OtelComponentMapping"
+    name: "Webshop database"
+    description: "Turns Kafka broker telemetry into a database component"
+    identifier: "urn:stackpack:<< .Name >>:otel-component-mapping:database"
+    input:
+      signal:
+        - "TRACES"
+        - "METRICS"
+      resource:
+        action: "'CREATE'"
+        condition: "resource.attributes['service.name'] == 'kafka'"
+    vars:
+      - name: "namespace"
+        value: >-
+          resource.attributes['service.namespace'] != '' ?
+          resource.attributes['service.namespace'] :
+          'default'
+      - name: "service"
+        value: "resource.attributes['service.name']"
+      - name: "clusterName"
+        value: "resource.attributes['k8s.cluster.name']"
+    output:
+      identifier: >-
+        'urn:stackpack:<< .Name >>:database/' + vars.namespace + '/' + vars.service
+      name: "vars.service"
+      typeName: "'<< .Name >> database'"
+      required:
+        additionalIdentifiers:
+          - "'urn:opentelemetry:namespace/' + vars.namespace + ':service/' + vars.service"
+        tags:
+          - source: "'<< .Name >>'"
+            target: "stackpack"
+          - source: "vars.service"
+            target: "service.name"
+          - source: "vars.namespace"
+            target: "service.namespace"
+          - source: "vars.clusterName"
+            target: "cluster-name"
+          - source: "resource.attributes"
+            pattern: "telemetry.sdk\\.(.*)"
+            target: "telemetry.sdk.${1}"
+      optional:
+        tags:
+          - source: "resource.attributes['service.version']"
+            target: "service.version"
+    expireAfter: 900000
+    # Deliberately BELOW the generic OTel service mapping (specificity 200) so the
+    # merged component keeps the primary typeName "otel service". That generic type is
+    # what our presentation binding + span-metric inheritance rely on; our own type
+    # survives as the "source-type:<< .Name >> database" label.
+    rank:
+      specificity: 150
