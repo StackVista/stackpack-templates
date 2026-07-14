@@ -30,7 +30,7 @@ nodes:
               _type: TextProjection
               value: "tags.singleValue('process.runtime.version')"
         provisioning:
-          externalComponentSelector: "external.mapping.identifier == 'urn:stackpack:<< .Name >>:otel-component-mapping:microservice'"
+          topologySourceSelector: "source.mapping.identifier == 'urn:stackpack:<< .Name >>:otel-component-mapping:microservice'"
           showConfiguration: false
           showStatus: false
         relatedResources:

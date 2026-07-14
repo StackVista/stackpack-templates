@@ -1,6 +1,6 @@
-# Base presentation for all microservice instances: shared list, columns, filters,
-# topology placement. Binding = generic OTel service-instance query + our narrowing
-# label, so the generic span metrics are inherited by composition (keep it a subset).
+# Base presentation for all microservice instances: shared list, columns, filters and
+# highlight. Binding = generic OTel service-instance query + our narrowing label, so
+# the generic span metrics are inherited by composition (keep it a subset).
 nodes:
   - _type: ComponentPresentation
     name: "Microservices base"
@@ -73,7 +73,7 @@ nodes:
           filter:
             _type: "TagFilter"
             tagKey: "service.namespace"
-          moreTab: "<< .DisplayName >>"
+          menuSection: "<< .DisplayName >>"
         - filterId: "cluster"
           displayName:
             singular: "Cluster"
@@ -81,7 +81,7 @@ nodes:
           filter:
             _type: "TagFilter"
             tagKey: "cluster-name"
-          moreTab: "<< .DisplayName >>"
+          menuSection: "<< .DisplayName >>"
       highlight:
         title: "Microservice instance"
         fields:

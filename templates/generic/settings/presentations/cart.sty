@@ -19,16 +19,8 @@ nodes:
         - filterId: "cluster"
       highlight:
         title: "Cart instance"
-        # Most fields (Namespace / Instance ID / Version) are inherited from
-        # microservice.sty; `fields` is required, so we keep just Labels here.
-        fields:
-          - fieldId: "labels"
-            title: "Labels"
-            order: 10.0
-            projection:
-              _type: TagProjection
         provisioning:
-          externalComponentSelector: "external.mapping.identifier == 'urn:stackpack:<< .Name >>:otel-component-mapping:microservice'"
+          topologySourceSelector: "source.mapping.identifier == 'urn:stackpack:<< .Name >>:otel-component-mapping:microservice'"
           showConfiguration: false
           showStatus: false
         relatedResources:

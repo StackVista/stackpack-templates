@@ -245,3 +245,11 @@ sts stackpack package
 # Upload to a test instance of SUSE Observability
 sts stackpack upload << .Name >>-0.0.1.sts
 ```
+
+The quickest inner loop is `test-deploy`, which validates, bumps a throwaway
+version, packages and uploads (installing or upgrading) in one step — handy for
+iterating against a dev instance. It is still behind the experimental flag:
+
+```bash
+STS_EXPERIMENTAL_STACKPACKS=true sts stackpack test-deploy
+```

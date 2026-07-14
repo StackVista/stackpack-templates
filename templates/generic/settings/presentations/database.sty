@@ -23,7 +23,7 @@ nodes:
           filter:
             _type: "TagFilter"
             tagKey: "service.namespace"
-          moreTab: "<< .DisplayName >>"
+          menuSection: "<< .DisplayName >>"
         - filterId: "cluster"
           displayName:
             singular: "Cluster"
@@ -31,7 +31,7 @@ nodes:
           filter:
             _type: "TagFilter"
             tagKey: "cluster-name"
-          moreTab: "<< .DisplayName >>"
+          menuSection: "<< .DisplayName >>"
       overview:
         name:
           singular: "database"
@@ -80,7 +80,7 @@ nodes:
             projection:
               _type: TagProjection
         provisioning:
-          externalComponentSelector: "external.mapping.identifier == 'urn:stackpack:<< .Name >>:otel-component-mapping:database'"
+          topologySourceSelector: "source.mapping.identifier == 'urn:stackpack:<< .Name >>:otel-component-mapping:database'"
           showConfiguration: false
           showStatus: false
         relatedResources:
