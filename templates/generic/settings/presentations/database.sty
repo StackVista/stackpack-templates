@@ -9,8 +9,8 @@ nodes:
       _type: ComponentPresentationQueryBinding
       query: (label = "stackpack:open-telemetry" and type = "otel service" and label = "source-type:<< .Name >> database")
     # 200-299 is the documented "Application / service" band, so our database
-    # presentation ranks above the generic OTel base and its icon + topology
-    # layer/domain win on the node. Inheritance is by binding subset, not rank.
+    # presentation ranks above the generic OTel base and its icon wins on the node.
+    # Inheritance is by binding subset, not rank.
     rank:
       specificity: 210
     presentation:
@@ -32,13 +32,6 @@ nodes:
             _type: "TagFilter"
             tagKey: "cluster-name"
           moreTab: "<< .DisplayName >>"
-      topology:
-        layer:
-          name: "Data stores"
-          order: 90
-        domain:
-          name: "<< .DisplayName >>"
-          order: 100
       overview:
         name:
           singular: "database"

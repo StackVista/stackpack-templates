@@ -192,14 +192,12 @@ custom integration:
 
 Concepts demonstrated across the presentation files: bindings,
 `rank` composition, **metric inheritance via binding subset**, icon, filters
-(definition & reference), topology placement (a named `layer` + `domain`),
-overview name/mainMenu/columns/sort, projection types (Health, ComponentLink,
-Text, Tag, Metric), highlight fields/provisioning/relatedResources/**links**/events,
-summary metrics, highlight metrics, metric perspective (tabs → sections), metric
-definitions with charts, and a **span-level** relation mapping (the Kafka
-consumer edge). The webshop's services sit in a **Services** layer above a **Data
-stores** layer (Kafka), all in one **<< .DisplayName >>** domain; the checkout
-highlight adds a **link** to that instance's traces.
+(definition & reference), overview name/mainMenu/columns/sort, projection types
+(Health, ComponentLink, Text, Tag, Metric),
+highlight fields/provisioning/relatedResources/**links**/events, summary metrics,
+highlight metrics, metric perspective (tabs → sections), metric definitions with
+charts, and a **span-level** relation mapping (the Kafka consumer edge). The
+checkout highlight adds a **link** to that instance's traces.
 
 A few projection types are intentionally **not** used because the webshop's OTel
 data has nothing honest to drive them — see the reference docs for

@@ -9,8 +9,8 @@ nodes:
       _type: ComponentPresentationQueryBinding
       # Matches both demo naming schemes: the newer "cart" and the older "cartservice".
       query: (label = "stackpack:open-telemetry" and type = "otel service instance" and label IN ("service.name:cart", "service.name:cartservice"))
-    # Above the microservice base (210) so cart-specific overrides win; the icon and
-    # topology layer/domain are inherited from the base by composition.
+    # Above the microservice base (210) so cart-specific overrides win; the icon is
+    # inherited from the base by composition.
     rank:
       specificity: 220
     presentation:
