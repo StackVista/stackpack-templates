@@ -1,0 +1,6 @@
+## Troubleshooting slow add-to-cart latency
+
+1. Open the [cart service instance]( /#/components/{{ componentUrnForUrl }} ) and review the Add-to-cart latency chart to see when it started degrading.
+2. Check the instance's [traces]( /#/components/{{ componentUrnForUrl }}/traces ) for slow AddItem spans and where the time is spent.
+3. Inspect the cart's dependencies in the [topology view]( /#/components/{{ componentUrnForUrl }}/topology ) — a slow backing store (e.g. its cache) often shows up here.
+4. Correlate with recent deploys or config changes in the instance [events]( /#/components/{{ componentUrnForUrl }}/events ).

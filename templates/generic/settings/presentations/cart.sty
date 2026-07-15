@@ -1,0 +1,80 @@
+# Rich presentation for cart instances: inherits the shared overview + generic span
+# metrics, adds the cart's own domain metric (add-to-cart latency).
+nodes:
+  - _type: ComponentPresentation
+    name: "Cart presentation"
+    description: "Rich presentation for the cart microservice"
+    identifier: "urn:stackpack:<< .Name >>:component-presentation:cart"
+    binding:
+      _type: ComponentPresentationQueryBinding
+      # Matches both demo naming schemes: the newer "cart" and the older "cartservice".
+      query: (label = "stackpack:open-telemetry" and type = "otel service instance" and label IN ("service.name:cart", "service.name:cartservice"))
+    # Above the microservice base (210) so cart-specific overrides win; the icon is
+    # inherited from the base by composition.
+    rank:
+      specificity: 220
+    presentation:
+      filters:
+        - filterId: "namespace"
+        - filterId: "cluster"
+      highlight:
+        title: "Cart instance"
+        provisioning:
+          topologySourceSelector: "source.mapping.identifier == 'urn:stackpack:<< .Name >>:otel-component-mapping:microservice'"
+          showConfiguration: false
+          showStatus: false
+        relatedResources:
+          - resourceId: "callers"
+            title: "Called by"
+            order: 1.0
+            topologyQuery: '(withNeighborsOf(direction = "up", components = (identifier = "${identifiers[0]}"), levels = "1")) and label = "source-type:<< .Name >> microservice"'
+            presentationIdentifier: "urn:stackpack:<< .Name >>:component-presentation:microservice-base"
+        events:
+          showEvents: true
+          relatedResourcesQuery: |
+            identifier = "${identifiers[0]}"
+        metrics:
+          - sectionId: cart
+            title: Cart operations
+            description: "Business metrics from the cart service itself"
+            order: 90
+            metrics:
+              - metricId: cart-add-item-latency
+                order: 100
+      summary:
+        metrics:
+          - summaryMetricId: cart_add_item_latency_summary
+            name: Add-to-cart latency
+            order: 100
+            decimalPlaces: 3
+            unit: s
+            query: |-
+              sum by (service_namespace, service_name) (rate(app_cart_add_item_latency_seconds_sum{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
+              / sum by (service_namespace, service_name) (rate(app_cart_add_item_latency_seconds_count{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
+            metricId: cart-add-item-latency
+      metricPerspective:
+        tabs:
+          - tabId: cart
+            title: Cart operations
+            order: 20
+            sections:
+              - sectionId: operations
+                title: Operations
+                order: 10
+                metrics:
+                  - metricId: cart-add-item-latency
+    metrics:
+      - metricId: cart-add-item-latency
+        name: Add-to-cart latency
+        description: Latency of the cart service's AddItem operation
+        metricQueries:
+          - expression: |-
+              sum by (service_namespace, service_name) (rate(app_cart_add_item_latency_seconds_sum{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
+              / sum by (service_namespace, service_name) (rate(app_cart_add_item_latency_seconds_count{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
+            alias: "average"
+          - expression: |-
+              histogram_quantile(0.95, sum(rate(app_cart_add_item_latency_seconds_bucket{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}])) by (le))
+            alias: "95th percentile"
+        chart:
+          _type: TimeSeriesChart
+          unit: s

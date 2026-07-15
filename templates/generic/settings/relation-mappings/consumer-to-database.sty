@@ -1,0 +1,42 @@
+# Relation mapping: Kafka consumer instance -> kafka database, from consumer spans
+# (Kafka is not in the service graph; we match the messaging span instead. Note:
+# we intentionally do NOT gate on span.kind == SPAN_KIND_CONSUMER -- the demo's
+# consumer spans are not tagged with that kind, so it would match nothing.)
+nodes:
+  - _type: "OtelRelationMapping"
+    name: "Consumer uses Kafka"
+    description: "Connects each Kafka consumer instance to the Kafka database"
+    identifier: "urn:stackpack:<< .Name >>:otel-relation-mapping:consumer-to-database"
+    input:
+      signal:
+        - "TRACES"
+      resource:
+        condition: "'service.name' in resource.attributes"
+        scope:
+          span:
+            action: "'CREATE'"
+            condition: >-
+              'messaging.system' in span.attributes &&
+              span.attributes['messaging.system'] == 'kafka'
+    vars:
+      - name: "namespace"
+        value: >-
+          'service.namespace' in resource.attributes &&
+          resource.attributes['service.namespace'] != '' ?
+          resource.attributes['service.namespace'] :
+          'default'
+      - name: "service"
+        value: "resource.attributes['service.name']"
+      - name: "instanceId"
+        value: >-
+          'service.instance.id' in resource.attributes ?
+          resource.attributes['service.instance.id'] :
+          resource.attributes['service.name']
+    output:
+      sourceId: >-
+        'urn:stackpack:<< .Name >>:microservice/' + vars.namespace + '/' + vars.service + '/' + vars.instanceId
+      targetId: >-
+        'urn:stackpack:<< .Name >>:database/' + vars.namespace + '/kafka'
+      typeName: "'consumes from'"
+      dependencyType: "'CONNECTION'"
+    expireAfter: 900000

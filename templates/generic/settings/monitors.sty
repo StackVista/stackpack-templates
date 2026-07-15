@@ -1,22 +1,31 @@
+# Threshold monitor on the cart's domain metric: DEVIATING when the 95th
+# percentile add-to-cart latency exceeds 50ms. Binds to the cart service instance.
+# (p95 from the histogram buckets -- alerts on tail latency, not the mean.)
 nodes:
 - _type: Monitor
   function: urn:stackpack:common:monitor-function:threshold
   arguments:
-    comparator: LTE
+    comparator: GT
     failureState: DEVIATING
     metric:
-      aliasTemplate: Node Memory Pressure OK
-      query: kubernetes_state_node_by_condition{condition="MemoryPressure"}
-      unit: short
-    threshold: 0.0
-    urnTemplate: urn:kubernetes:/${cluster_name}:node/${node}
+      aliasTemplate: Add-to-cart latency 95th percentile
+      query: >-
+        histogram_quantile(0.95, sum by (service_namespace, service_name, service_instance_id, le)
+        (rate(app_cart_add_item_latency_seconds_bucket{service_name=~"cart|cartservice"}[5m]))) * 1000
+      unit: ms
+    threshold: 50.0
+    titleTemplate: Add-to-cart latency
+    urnTemplate: "urn:opentelemetry:namespace/${service_namespace}:service/${service_name}:serviceInstance/${service_instance_id}"
   description: |-
-    Node memory pressure occurs when memory resources on a Kubernetes node are excessively strained, typically due to misconfigured resource requests/limits for containers or memory-intensive applications. This can lead to performance issues and requires proper resource allocation, monitoring of memory usage, and adjustment of container resource configurations to maintain optimal node performance.
-  identifier: urn:stackpack:<< .Name >>:shared:monitor:<< .Name >>:node-memory-pressure
+    Monitors the cart service's own add-to-cart latency (the app_cart_add_item_latency
+    histogram). When the 95th percentile exceeds the threshold (default 50ms) the
+    cart service instance goes to a Deviating state. This is a domain-specific health
+    signal driven by the same metric shown on the cart presentation.
+  identifier: urn:stackpack:<< .Name >>:shared:monitor:cart-add-item-latency
   intervalSeconds: 30
-  name: Node Memory Pressure (Custom)
-  remediationHint: !include "remediation-hints/node-memory-pressure.md.hbs"
+  name: Add-to-cart latency (Custom)
+  remediationHint: !include "remediation-hints/cart-add-item-latency.md.hbs"
   status: ENABLED
   tags:
-  - nodes
-  - pressure
+  - cart
+  - latency
