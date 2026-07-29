@@ -1,6 +1,7 @@
 # << .Name >> StackPack
 
-This StackPack was created from the generic template. It is a **worked tutorial**:
+This StackPack was created from the generic template, for which the [source code is publicly on github](https://github.com/StackVista/stackpack-templates/blob/main/templates/generic).
+It is a **worked tutorial**:
 it contains one runnable example of every concept you need to build a custom
 integration for SUSE Observability — from turning raw telemetry into components,
 to connecting them, to controlling exactly how they look in the UI.
