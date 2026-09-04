@@ -11,13 +11,13 @@ nodes:
       aliasTemplate: Add-to-cart latency 95th percentile
       query: >-
         histogram_quantile(0.95, sum by (service_namespace, service_name, service_instance_id, le)
-        (rate(app_cart_add_item_latency_seconds_bucket{service_name=~"cart|cartservice"}[5m]))) * 1000
+        (rate(demo_cart_add_item_latency_seconds_bucket{service_name=~"cart|cartservice"}[5m]))) * 1000
       unit: ms
     threshold: 50.0
     titleTemplate: Add-to-cart latency
     urnTemplate: "urn:opentelemetry:namespace/${service_namespace}:service/${service_name}:serviceInstance/${service_instance_id}"
   description: |-
-    Monitors the cart service's own add-to-cart latency (the app_cart_add_item_latency
+    Monitors the cart service's own add-to-cart latency (the demo_cart_add_item_latency
     histogram). When the 95th percentile exceeds the threshold (default 50ms) the
     cart service instance goes to a Deviating state. This is a domain-specific health
     signal driven by the same metric shown on the cart presentation.

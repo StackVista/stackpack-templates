@@ -50,6 +50,9 @@ and can be kept or deleted independently.
 - Covers the full StackPacks 2.0 presentation model: component mappings, relation mappings, `ComponentPresentation` (columns, highlight, summary/perspective metrics, projections, filters), `MainMenuGroup`, and icons
 - Every `.sty` file is commented and cross-linked to the reference documentation
 
+**NOTE**
+The template has been validated to work with opentelemetry-demo Helm chart version `0.41.0`.  Other versions may not be compatible.
+
 **🔍 Monitoring**
 - **Add-to-cart latency monitor**: a threshold `Monitor` on the cart's own domain metric — goes Deviating when the 95th-percentile add-to-cart latency exceeds 50&nbsp;ms, bound to the cart service instance
 - Threshold-based alerting with a `!include` remediation hint (domain metric → monitor → health)

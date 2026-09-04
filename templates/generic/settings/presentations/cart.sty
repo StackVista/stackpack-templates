@@ -49,8 +49,8 @@ nodes:
             decimalPlaces: 3
             unit: s
             query: |-
-              sum by (service_namespace, service_name) (rate(app_cart_add_item_latency_seconds_sum{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
-              / sum by (service_namespace, service_name) (rate(app_cart_add_item_latency_seconds_count{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
+              sum by (service_namespace, service_name) (rate(demo_cart_add_item_latency_seconds_sum{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
+              / sum by (service_namespace, service_name) (rate(demo_cart_add_item_latency_seconds_count{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
             metricId: cart-add-item-latency
       metricPerspective:
         tabs:
@@ -69,11 +69,11 @@ nodes:
         description: Latency of the cart service's AddItem operation
         metricQueries:
           - expression: |-
-              sum by (service_namespace, service_name) (rate(app_cart_add_item_latency_seconds_sum{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
-              / sum by (service_namespace, service_name) (rate(app_cart_add_item_latency_seconds_count{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
+              sum by (service_namespace, service_name) (rate(demo_cart_add_item_latency_seconds_sum{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
+              / sum by (service_namespace, service_name) (rate(demo_cart_add_item_latency_seconds_count{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}]))
             alias: "average"
           - expression: |-
-              histogram_quantile(0.95, sum(rate(app_cart_add_item_latency_seconds_bucket{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}])) by (le))
+              histogram_quantile(0.95, sum(rate(demo_cart_add_item_latency_seconds_bucket{service_namespace="${tags.singleValue('service.namespace')}", service_name="${tags.singleValue('service.name')}", service_instance_id="${tags.singleValue('service.instance.id')}"}[${__rate_interval}])) by (le))
             alias: "95th percentile"
         chart:
           _type: TimeSeriesChart
