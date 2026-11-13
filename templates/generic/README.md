@@ -66,7 +66,7 @@ can be kept or deleted independently.
 | `settings/presentations/cart.sty` | Rich `ComponentPresentation` for cart instances — the full tour, incl. a domain metric |
 | `settings/presentations/checkout.sty` | Rich presentation for checkout instances — focuses on what it depends on |
 | `settings/presentations/database.sty` | Second-type presentation for the database (service-level; lists connecting instances via related resources) |
-| `settings/monitors.sty` | `Monitor` on the cart's **own domain metric** — Deviating when p95 add-to-cart latency > 50 ms, bound to the cart instance (domain metric → monitor → health), with an `!include` remediation hint |
+| `settings/monitors.sty` | `Monitor` on the cart's **own domain metric** — Deviating when p95 add-to-cart latency > 50 ms, bound to the cart instance (domain metric → monitor → health), with an `!include` remediation hint; and a **source component data** `Monitor` that judges the database component from its own source data with CEL |
 | `icons/microservice.svg`, `database.svg` | Icons referenced via `!icon` |
 
 The microservices mapping onboards **every** service instance in the demo (any

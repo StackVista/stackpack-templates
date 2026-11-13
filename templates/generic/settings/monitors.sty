@@ -29,3 +29,31 @@ nodes:
   tags:
   - cart
   - latency
+
+# Source component data monitor on the database component's own source: the data
+# the database component mapping above produced. DEVIATING when that source does
+# not report a service.version. The expressions are CEL; `vars` are named values
+# the other expressions read as `vars.<name>`.
+- _type: Monitor
+  function: urn:stackpack:common:monitor-function:source-component-data
+  arguments:
+    query: 'label = "source-type:<< .Name >> database"'
+    sourceSelector: '"<< .Name >>" in source.tags[?"stackpack"].orValue([])'
+    vars:
+      version: 'source.tags[?"service.version"].orValue([""])[0]'
+      unversioned: 'vars.version == ""'
+    health: 'vars.unversioned ? "DEVIATING" : "CLEAR"'
+    title: '"Database version"'
+    reason: 'vars.unversioned ? "The database does not report a service.version" : "The database runs version " + vars.version'
+    data: '{"version": vars.version}'
+  description: |-
+    Checks that the webshop database reports the version it runs, from the data
+    its component mapping produced. Components without a version are Deviating.
+    Use this as a starting point for monitors that judge a component from its own
+    source data, such as a status or configuration field the mapping sets.
+  identifier: urn:stackpack:<< .Name >>:shared:monitor:database-version
+  intervalSeconds: 30
+  name: Database version (Custom)
+  status: ENABLED
+  tags:
+  - database
