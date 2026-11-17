@@ -40,7 +40,7 @@ nodes:
     query: 'label = "source-type:<< .Name >> database"'
     sourceSelector: '"<< .Name >>" in source.tags[?"stackpack"].orValue([])'
     vars:
-      version: 'source.tags[?"service.version"].orValue([""])[0]'
+      version: 'item.tags[?"service.version"].orValue([""])[0]'
       unversioned: 'vars.version == ""'
     health: 'vars.unversioned ? "DEVIATING" : "CLEAR"'
     title: '"Database version"'
